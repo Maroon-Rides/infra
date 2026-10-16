@@ -2,14 +2,6 @@ module "contabo" {
   source = "../modules/contabo"
 }
 
-module "dns" {
-  source = "../modules/dns"
-
-  zone_id             = local.zone_id
-  hosts               = local.public_ingress_hosts
-  public_ingress_ipv4 = module.contabo.public_ipv4
-}
-
 module "api_tokens" {
   source = "../modules/api-tokens"
 
