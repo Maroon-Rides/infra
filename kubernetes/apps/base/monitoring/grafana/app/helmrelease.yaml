@@ -1,0 +1,54 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: grafana
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: grafana
+  values:
+    # The ReadWriteOnce volume cannot attach to a second pod during a rollout.
+    deploymentStrategy:
+      type: Recreate
+
+    admin:
+      existingSecret: grafana-admin
+
+    persistence:
+      enabled: true
+      storageClassName: miroir
+      size: 1Gi
+
+    service:
+      annotations:
+        tailscale.com/expose: 'true'
+        tailscale.com/hostname: grafana
+
+    grafana.ini:
+      analytics:
+        check_for_updates: false
+        reporting_enabled: false
+
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - name: Prometheus
+            type: prometheus
+            uid: prometheus
+            url: http://prometheus-server.monitoring.svc
+            access: proxy
+            isDefault: true
+
+    sidecar:
+      dashboards:
+        enabled: true
+
+    resources:
+      requests:
+        cpu: 25m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
