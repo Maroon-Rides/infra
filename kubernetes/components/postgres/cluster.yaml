@@ -1,0 +1,30 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: ${APP}-db
+spec:
+  instances: 2
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.4-standard-trixie
+  primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
+    podAntiAffinityType: preferred
+  storage:
+    size: 5Gi
+    storageClass: miroir
+  bootstrap:
+    initdb:
+      database: ${APP}
+      owner: ${APP}
+  postgresql:
+    shared_preload_libraries:
+      - pg_stat_statements
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 1Gi

@@ -1,0 +1,25 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  annotations:
+    # Not an app-template chart; its values.schema.json rejects `controllers`.
+    maroonrides.app/probe-defaults: disabled
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: cert-manager
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
+  values:
+    crds:
+      enabled: true
+    replicaCount: 1
+    cainjector:
+      replicaCount: 1
+    webhook:
+      replicaCount: 1

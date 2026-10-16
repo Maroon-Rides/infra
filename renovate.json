@@ -1,0 +1,19 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["github>home-operations/renovate-presets"],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "semanticCommitType": "chore"
+    },
+    {
+      "matchFileNames": ["**/flux-system/**"],
+      "groupName": "fluxcd"
+    }
+  ],
+  "ignoreTests": true
+}
