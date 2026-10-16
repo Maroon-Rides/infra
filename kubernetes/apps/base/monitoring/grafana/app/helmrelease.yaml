@@ -41,6 +41,9 @@ spec:
             url: http://prometheus-server.monitoring.svc
             access: proxy
             isDefault: true
+            jsonData:
+              # Matches the Prometheus scrape_interval so $__rate_interval spans enough samples.
+              timeInterval: 30s
 
     sidecar:
       dashboards:

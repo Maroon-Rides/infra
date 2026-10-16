@@ -28,6 +28,10 @@ spec:
         enabled: false
 
     server:
+      # Grafana's datasource timeInterval must match scrape_interval.
+      global:
+        scrape_interval: 30s
+        evaluation_interval: 30s
       retention: 15d
       retentionSize: 8GB
       persistentVolume:
