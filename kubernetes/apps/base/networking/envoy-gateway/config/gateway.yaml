@@ -6,7 +6,7 @@ metadata:
   namespace: networking
   annotations:
     # The Gateway's own address is the envoy ClusterIP, not the public IP.
-    external-dns.alpha.kubernetes.io/target: ${PUBLIC_IPV4}
+    external-dns.kubernetes.io/target: ${PUBLIC_IPV4}
 spec:
   gatewayClassName: envoy-ingress
   listeners:
