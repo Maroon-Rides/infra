@@ -10,7 +10,7 @@ spec:
       kind: Gateway
       name: envoy-ingress
   http2:
-    initialStreamWindowSize: 32Mi
-    initialConnectionWindowSize: 64Mi
+    initialStreamWindowSize: 1Mi
+    initialConnectionWindowSize: 2Mi
   connection:
-    bufferLimit: 32Mi
+    bufferLimit: 1Mi
