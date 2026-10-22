@@ -227,6 +227,59 @@
       "gridPos": { "x": 12, "y": 93, "w": 12, "h": 8 },
       "fieldConfig": { "defaults": { "unit": "none", "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" }, "fillOpacity": 60 } } },
       "targets": [{ "refId": "A", "expr": "sum by (type, outcome) (increase(gateway_report_events_total[$__rate_interval])) > 0", "legendFormat": "{{type}} {{outcome}}" }]
+    },
+
+    { "type": "row", "title": "App sessions", "collapsed": false, "gridPos": { "x": 0, "y": 101, "w": 24, "h": 1 } },
+    {
+      "type": "stat", "title": "Sessions (in range)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 0, "y": 102, "w": 8, "h": 4 },
+      "fieldConfig": { "defaults": { "decimals": 0 } },
+      "targets": [{ "refId": "A", "instant": true, "expr": "sum(increase(gateway_app_sessions_total[$__range]))" }]
+    },
+    {
+      "type": "stat", "title": "iOS sessions (in range)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 8, "y": 102, "w": 8, "h": 4 },
+      "fieldConfig": { "defaults": { "decimals": 0 } },
+      "targets": [{ "refId": "A", "instant": true, "expr": "sum(increase(gateway_app_sessions_total{platform=\"ios\"}[$__range]))" }]
+    },
+    {
+      "type": "stat", "title": "Android sessions (in range)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 16, "y": 102, "w": 8, "h": 4 },
+      "fieldConfig": { "defaults": { "decimals": 0 } },
+      "targets": [{ "refId": "A", "instant": true, "expr": "sum(increase(gateway_app_sessions_total{platform=\"android\"}[$__range]))" }]
+    },
+    {
+      "type": "timeseries", "title": "Sessions by platform",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 0, "y": 106, "w": 12, "h": 8 },
+      "fieldConfig": { "defaults": { "unit": "none", "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" }, "fillOpacity": 60 } } },
+      "targets": [{ "refId": "A", "expr": "sum by (platform) (increase(gateway_app_sessions_total[$__rate_interval]))", "legendFormat": "{{platform}}" }]
+    },
+    {
+      "type": "piechart", "title": "Platform split (in range)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 12, "y": 106, "w": 12, "h": 8 },
+      "options": { "pieType": "donut", "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] }, "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "decimals": 0 } },
+      "targets": [{ "refId": "A", "instant": true, "expr": "sum by (platform) (increase(gateway_app_sessions_total[$__range]))", "legendFormat": "{{platform}}" }]
+    },
+    {
+      "type": "bargauge", "title": "Sessions by app version (in range)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 0, "y": 114, "w": 12, "h": 8 },
+      "options": { "orientation": "horizontal", "displayMode": "basic", "showUnfilled": true },
+      "fieldConfig": { "defaults": { "unit": "none", "decimals": 0 } },
+      "targets": [{ "refId": "A", "instant": true, "expr": "sort_desc(sum by (platform, version) (increase(gateway_app_sessions_total[$__range])))", "legendFormat": "{{platform}} {{version}}" }]
+    },
+    {
+      "type": "timeseries", "title": "Sessions by app version",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 12, "y": 114, "w": 12, "h": 8 },
+      "fieldConfig": { "defaults": { "unit": "none", "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" }, "fillOpacity": 60 } } },
+      "targets": [{ "refId": "A", "expr": "sum by (version) (increase(gateway_app_sessions_total[$__rate_interval]))", "legendFormat": "{{version}}" }]
     }
   ]
 }
