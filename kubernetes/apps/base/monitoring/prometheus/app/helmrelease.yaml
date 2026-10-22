@@ -32,11 +32,11 @@ spec:
       global:
         scrape_interval: 30s
         evaluation_interval: 30s
-      retention: 15d
-      retentionSize: 8GB
+      retention: 60d
+      retentionSize: 35GB
       persistentVolume:
         storageClass: miroir
-        size: 10Gi
+        size: 40Gi
       resources:
         requests:
           cpu: 50m
