@@ -103,3 +103,23 @@ spec:
                 expr: sum by (job) (increase(requester_job_retries_exhausted_total[15m])) > 0
                 annotations:
                   summary: 'Job {{ $labels.job }} ran out of retries {{ $value | humanize }} times in 15 minutes'
+
+              # A fresh install has nothing local that could be corrupt, so any failure is a gateway or app bug.
+              - alert: SyncFailingFromEmptyDatabase
+                expr: sum by (code) (increase(gateway_sync_failures_total{start="empty"}[10m])) > 0
+                annotations:
+                  summary: 'Sync from an empty database failed with {{ $labels.code }} {{ $value | humanize }} times in 10 minutes'
+
+              - alert: SyncHighFailureRate
+                expr: |
+                  sum(increase(gateway_sync_failures_total{start="checkpoint"}[30m]))
+                    / sum(increase(gateway_syncs_total[30m])) > 0.02
+                  and sum(increase(gateway_sync_failures_total{start="checkpoint"}[30m])) >= 3
+                for: 10m
+                annotations:
+                  summary: 'Clients report {{ $value | humanizePercentage }} of syncs failing'
+
+              - alert: ReportEventsDropped
+                expr: sum by (type) (increase(gateway_report_events_total{outcome="dropped"}[1h])) > 10
+                annotations:
+                  summary: 'Gateway dropped {{ $value | humanize }} {{ $labels.type }} report events in an hour'
