@@ -9,6 +9,7 @@ configMapGenerator:
   - name: grafana-dashboards
     files:
       - dashboards/maroonrides-api.json
+      - dashboards/maroonrides-auth.json
     options:
       disableNameSuffixHash: true
       labels:

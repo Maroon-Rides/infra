@@ -1,0 +1,97 @@
+{
+  "uid": "maroonrides-auth",
+  "title": "MaroonRides Auth",
+  "tags": ["maroonrides"],
+  "timezone": "browser",
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "time": { "from": "now-6h", "to": "now" },
+  "templating": {
+    "list": [
+      { "type": "constant", "name": "cluster", "hide": 2, "query": "httproute/maroonrides/maroonrides-auth/.*" }
+    ]
+  },
+  "panels": [
+    { "type": "row", "title": "Traffic (from Envoy)", "collapsed": false, "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 } },
+    {
+      "type": "stat", "title": "Requests/s",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 0, "y": 1, "w": 6, "h": 4 },
+      "fieldConfig": { "defaults": { "unit": "reqps", "decimals": 2 } },
+      "targets": [{ "refId": "A", "expr": "sum(rate(envoy_cluster_upstream_rq_total{envoy_cluster_name=~\"$cluster\"}[$__rate_interval]))" }]
+    },
+    {
+      "type": "stat", "title": "Requests in range",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 6, "y": 1, "w": 6, "h": 4 },
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 } },
+      "targets": [{ "refId": "A", "instant": true, "expr": "sum(increase(envoy_cluster_upstream_rq_total{envoy_cluster_name=~\"$cluster\"}[$__range]))" }]
+    },
+    {
+      "type": "stat", "title": "5xx ratio",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 12, "y": 1, "w": 6, "h": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit", "decimals": 2,
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": null },
+            { "color": "orange", "value": 0.01 },
+            { "color": "red", "value": 0.05 }
+          ] }
+        }
+      },
+      "targets": [{ "refId": "A", "expr": "sum(rate(envoy_cluster_upstream_rq_xx{envoy_cluster_name=~\"$cluster\", envoy_response_code_class=\"5\"}[$__rate_interval])) / sum(rate(envoy_cluster_upstream_rq_total{envoy_cluster_name=~\"$cluster\"}[$__rate_interval])) or vector(0)" }]
+    },
+    {
+      "type": "stat", "title": "Healthy backends",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 18, "y": 1, "w": 6, "h": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "red", "value": null },
+            { "color": "green", "value": 1 }
+          ] }
+        }
+      },
+      "targets": [{ "refId": "A", "expr": "sum(envoy_cluster_membership_healthy{envoy_cluster_name=~\"$cluster\"})" }]
+    },
+    {
+      "type": "timeseries", "title": "Requests by status",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 0, "y": 5, "w": 12, "h": 8 },
+      "fieldConfig": { "defaults": { "unit": "reqps" } },
+      "targets": [{ "refId": "A", "expr": "sum by (envoy_response_code) (rate(envoy_cluster_upstream_rq{envoy_cluster_name=~\"$cluster\"}[$__rate_interval]))", "legendFormat": "{{envoy_response_code}}" }]
+    },
+    {
+      "type": "timeseries", "title": "Upstream latency",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 12, "y": 5, "w": 12, "h": 8 },
+      "fieldConfig": { "defaults": { "unit": "ms" } },
+      "targets": [
+        { "refId": "A", "expr": "histogram_quantile(0.5, sum by (le) (rate(envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name=~\"$cluster\"}[$__rate_interval])))", "legendFormat": "p50" },
+        { "refId": "B", "expr": "histogram_quantile(0.95, sum by (le) (rate(envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name=~\"$cluster\"}[$__rate_interval])))", "legendFormat": "p95" },
+        { "refId": "C", "expr": "histogram_quantile(0.99, sum by (le) (rate(envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name=~\"$cluster\"}[$__rate_interval])))", "legendFormat": "p99" }
+      ]
+    },
+    {
+      "type": "timeseries", "title": "Connection errors",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 0, "y": 13, "w": 12, "h": 8 },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [
+        { "refId": "A", "expr": "sum(increase(envoy_cluster_upstream_cx_connect_fail{envoy_cluster_name=~\"$cluster\"}[$__rate_interval]))", "legendFormat": "connect failures" },
+        { "refId": "B", "expr": "sum(increase(envoy_cluster_upstream_rq_timeout{envoy_cluster_name=~\"$cluster\"}[$__rate_interval]))", "legendFormat": "timeouts" },
+        { "refId": "C", "expr": "sum(increase(envoy_cluster_upstream_rq_pending_failure_eject{envoy_cluster_name=~\"$cluster\"}[$__rate_interval]))", "legendFormat": "pending failures" }
+      ]
+    },
+    {
+      "type": "timeseries", "title": "Bytes sent",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "x": 12, "y": 13, "w": 12, "h": 8 },
+      "fieldConfig": { "defaults": { "unit": "Bps" } },
+      "targets": [{ "refId": "A", "expr": "sum(rate(envoy_cluster_upstream_cx_rx_bytes_total{envoy_cluster_name=~\"$cluster\"}[$__rate_interval]))", "legendFormat": "to clients" }]
+    }
+  ]
+}
