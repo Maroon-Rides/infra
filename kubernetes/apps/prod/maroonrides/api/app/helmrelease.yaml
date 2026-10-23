@@ -30,7 +30,7 @@ spec:
           main:
             image:
               repository: ghcr.io/maroon-rides/api-gateway
-              tag: "1.7.0"
+              tag: "1.8.0"
             env:
               PORT: "3000"
               DATABASE_URL: &databaseUrl
@@ -58,7 +58,7 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: /api/version/supported
+                    path: /healthz
                     port: 3000
                   timeoutSeconds: 5
               readiness: *probes
