@@ -51,4 +51,4 @@ patches:
                   CLUSTER: prod
                   MIROIR_DATA_REPLICAS: '"1"'
                   # tofu output contabo_public_ipv4
-                  PUBLIC_IPV4: 195.26.254.117
+                  PUBLIC_IPV4: 209.145.50.54
