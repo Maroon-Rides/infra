@@ -26,12 +26,15 @@ in
       "--kube-apiserver-arg=feature-gates=ImageVolume=true"
       "--kubelet-arg=feature-gates=ImageVolume=true"
       "--kubelet-arg=config=${kubeletConfig}"
-      # Quoted: systemd splits ExecStart on spaces, and k3s ignores every flag
-      # after the first stray word.
-      ''--etcd-snapshot-schedule-cron="0 */6 * * *"''
-      "--etcd-snapshot-retention=14"
     ];
   };
+
+  # The sqlite datastore syncs on every write; copy-on-write makes each sync slower.
+  # +C only applies to files created after it is set, so it has to exist before k3s starts.
+  systemd.tmpfiles.rules = [
+    "d /var/lib/rancher/k3s/server/db 0700 root root -"
+    "h /var/lib/rancher/k3s/server/db - - - - +C"
+  ];
 
   # CoreDNS copies the node's resolv.conf when it starts, so it only resolves
   # tailnet names if Tailscale DNS is already in place. Gives up after a minute
