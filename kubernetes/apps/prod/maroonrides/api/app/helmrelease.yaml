@@ -93,8 +93,9 @@ spec:
       db-dump:
         type: cronjob
         cronjob:
-          # Lands before the volsync run at 02:00.
+          # Lands before the volsync run, which is scheduled in UTC.
           schedule: "30 1 * * *"
+          timeZone: UTC
           concurrencyPolicy: Forbid
           successfulJobsHistory: 1
           failedJobsHistory: 1
