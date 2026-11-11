@@ -4,7 +4,7 @@ kind: Cluster
 metadata:
   name: ${APP}-db
 spec:
-  instances: 2
+  instances: 1
   imageName: ghcr.io/cloudnative-pg/postgresql:18.4-standard-trixie
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
