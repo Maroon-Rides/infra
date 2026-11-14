@@ -34,3 +34,13 @@ module "flux_webhooks" {
   domain     = local.domain
   vault_uuid = local.vault_uuid
 }
+
+module "pages_web" {
+  source = "../modules/pages-web"
+
+  account_id   = local.account_id
+  zone_id      = local.zone_id
+  domain       = local.domain
+  project_name = "maroonrides-web"
+  repository   = "MaroonRides"
+}
