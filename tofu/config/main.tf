@@ -45,3 +45,14 @@ module "pages_web" {
   tiles_bucket_name = "maroonrides-map-tiles"
   repository        = "MaroonRides"
 }
+
+module "pages_site" {
+  source = "../modules/pages-site"
+
+  account_id        = local.account_id
+  zone_id           = local.zone_id
+  domain            = local.domain
+  project_name      = "maroonrides-site"
+  production_branch = "master"
+  repository        = "maroon-rides.github.io"
+}
