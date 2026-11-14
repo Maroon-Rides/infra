@@ -88,6 +88,21 @@ resource "github_actions_secret" "cloudflare_api_token" {
   plaintext_value = cloudflare_account_token.pages_deploy.value
 }
 
+// R2's REST object API rejects bucket-scoped tokens, so the basemap goes up through the S3 API.
+// Its credentials are derived from the token: the id is the access key and the SHA-256 of the
+// value is the secret.
+resource "github_actions_secret" "r2_access_key_id" {
+  repository      = var.repository
+  secret_name     = "R2_ACCESS_KEY_ID"
+  plaintext_value = cloudflare_account_token.pages_deploy.id
+}
+
+resource "github_actions_secret" "r2_secret_access_key" {
+  repository      = var.repository
+  secret_name     = "R2_SECRET_ACCESS_KEY"
+  plaintext_value = sha256(cloudflare_account_token.pages_deploy.value)
+}
+
 resource "github_actions_variable" "cloudflare_account_id" {
   repository    = var.repository
   variable_name = "CLOUDFLARE_ACCOUNT_ID"
