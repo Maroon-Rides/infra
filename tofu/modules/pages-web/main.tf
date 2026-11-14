@@ -1,5 +1,6 @@
 locals {
-  hostname = "web.${var.domain}"
+  hostname       = "web.${var.domain}"
+  tiles_hostname = "tiles.${var.domain}"
 }
 
 // Deployments are direct uploads from GitHub Actions, so the project has no git source.
@@ -24,6 +25,37 @@ resource "cloudflare_dns_record" "web" {
   ttl     = 1
 }
 
+// Pages ignores Range headers, which PMTiles needs, so the web build reads the basemap from R2.
+resource "cloudflare_r2_bucket" "tiles" {
+  account_id = var.account_id
+  name       = var.tiles_bucket_name
+}
+
+resource "cloudflare_r2_custom_domain" "tiles" {
+  account_id  = var.account_id
+  bucket_name = cloudflare_r2_bucket.tiles.name
+  zone_id     = var.zone_id
+  domain      = local.tiles_hostname
+  enabled     = true
+}
+
+resource "cloudflare_r2_bucket_cors" "tiles" {
+  account_id  = var.account_id
+  bucket_name = cloudflare_r2_bucket.tiles.name
+
+  rules = [
+    {
+      allowed = {
+        methods = ["GET", "HEAD"]
+        origins = ["*"]
+        headers = ["Range", "If-Match"]
+      }
+      expose_headers  = ["ETag", "Content-Range", "Content-Length"]
+      max_age_seconds = 86400
+    }
+  ]
+}
+
 resource "cloudflare_account_token" "pages_deploy" {
   account_id = var.account_id
   name       = "maroonrides pages deploy"
@@ -36,6 +68,15 @@ resource "cloudflare_account_token" "pages_deploy" {
       ]
       resources = jsonencode({
         "com.cloudflare.api.account.${var.account_id}" = "*"
+      })
+    },
+    {
+      effect = "allow"
+      permission_groups = [
+        { id = "2efd5506f9c8494dacb1fa10a3e7d5b6" }, # Workers R2 Storage Bucket Item Write
+      ]
+      resources = jsonencode({
+        "com.cloudflare.edge.r2.bucket.${var.account_id}_default_${cloudflare_r2_bucket.tiles.name}" = "*"
       })
     }
   ]
@@ -57,4 +98,16 @@ resource "github_actions_variable" "pages_project" {
   repository    = var.repository
   variable_name = "CLOUDFLARE_PAGES_PROJECT"
   value         = cloudflare_pages_project.web.name
+}
+
+resource "github_actions_variable" "tiles_bucket" {
+  repository    = var.repository
+  variable_name = "MAP_TILES_BUCKET"
+  value         = cloudflare_r2_bucket.tiles.name
+}
+
+resource "github_actions_variable" "tiles_url" {
+  repository    = var.repository
+  variable_name = "MAP_TILES_URL"
+  value         = "https://${local.tiles_hostname}"
 }

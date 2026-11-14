@@ -4,7 +4,7 @@ MaroonRides infrastructure: one Contabo VPS (`prod-server`) running NixOS and a
 single-node k3s cluster (`prod`) reconciled by Flux.
 
 - `tofu/`: Contabo instance + NixOS install, `maroonrides.app` DNS records,
-  the `web.maroonrides.app` Pages project and its GitHub deploy secrets,
+  the `web.maroonrides.app` Pages project, `tiles.maroonrides.app` R2 bucket and their GitHub deploy secrets,
   Cloudflare tokens, R2 backup bucket, Tailscale policy, Flux webhooks
 - `nixos/`: host configuration
 - `kubernetes/`: Flux tree. `apps/base` is the platform, `apps/prod` the apps
