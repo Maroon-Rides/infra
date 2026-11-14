@@ -17,3 +17,7 @@ variable "project_name" {
 variable "repository" {
   type = string
 }
+
+variable "tiles_bucket_name" {
+  type = string
+}
