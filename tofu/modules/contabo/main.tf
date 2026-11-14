@@ -5,12 +5,18 @@ locals {
   // https://api.contabo.com/#tag/Instances/operation/createInstance
   product_id = "V153" // Cloud VPS 4
   region     = "US-central"
+
+  // The "bwees" SSH secret. Contabo's API returns 500 when reading it by id, which fails
+  // every refresh, so it lives outside tofu.
+  bwees_ssh_secret_id = 510553
 }
 
-resource "contabo_secret" "bwees_ssh" {
-  name  = "bwees"
-  type  = "ssh"
-  value = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJr7fOsF74yPo/dhdorxFhgnCURWPVDkIjeRz2md0Jzq"
+removed {
+  from = contabo_secret.bwees_ssh
+
+  lifecycle {
+    destroy = false
+  }
 }
 
 resource "contabo_instance" "prod_server" {
@@ -18,7 +24,7 @@ resource "contabo_instance" "prod_server" {
   product_id   = local.product_id
   region       = local.region
   image_id     = local.ubuntu_image_id
-  ssh_keys     = [contabo_secret.bwees_ssh.id]
+  ssh_keys     = [local.bwees_ssh_secret_id]
   default_user = "root"
 
   lifecycle {
