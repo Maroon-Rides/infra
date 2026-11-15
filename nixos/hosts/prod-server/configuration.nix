@@ -25,6 +25,7 @@ in
 
   services.openssh.enable = true;
   services.openssh.settings.PasswordAuthentication = false;
+  services.openssh.settings.KbdInteractiveAuthentication = false;
 
   services.tailscale.extraUpFlags = [
     "--advertise-tags=tag:prod,tag:nixos"
@@ -44,4 +45,8 @@ in
   ];
 
   services.fail2ban.enable = true;
+  services.fail2ban.ignoreIP = [
+    "100.64.0.0/10"
+    "fd7a:115c:a1e0::/48"
+  ];
 }
